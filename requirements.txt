@@ -1,4 +1,5 @@
 dash
+<<<<<<< HEAD
 python 
 random 
 pandas
@@ -14,3 +15,7 @@ langchain-community
 python-dotenv
 faiss-cpu
 gunicorn
+=======
+pandas
+gunicorn
+>>>>>>> 74dc2773d02237696e6d432542874ac7addd8ef6
