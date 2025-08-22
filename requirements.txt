@@ -1,12 +1,13 @@
-pandas
 dash
 plotly
 pandas
 langchain
 langchain-groq
 langchain-community
-python-dotenv
+langchain-huggingface  
+pypdf
+transformers
+torch
 faiss-cpu
+python-dotenv
 gunicorn
-
-
