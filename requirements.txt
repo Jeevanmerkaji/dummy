@@ -1,0 +1,16 @@
+dash
+python 
+random 
+pandas
+contextlib
+time
+socket
+dash
+plotly
+pandas
+langchain
+langchain-groq
+langchain-community
+python-dotenv
+faiss-cpu
+gunicorn
