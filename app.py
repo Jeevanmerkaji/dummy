@@ -95,6 +95,7 @@ import pandas as pd
 
 # Initialize the Dash app
 app = dash.Dash(__name__)
+server= app.server
 
 # Power grid station data
 grid_stations = [
@@ -542,4 +543,5 @@ def find_free_port(min_port=8050, max_port=9000, max_tries=100):
 if __name__ == '__main__':
     free_port = find_free_port()
     url = f"http://localhost:{free_port}"
+
     app.run(debug=True, port=free_port)
