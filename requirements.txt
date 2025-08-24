@@ -11,3 +11,4 @@ torch
 faiss-cpu
 python-dotenv
 gunicorn
+sentence-transformers
