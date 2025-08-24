@@ -22,7 +22,7 @@ from langchain.prompts import PromptTemplate
 
 # Initialize the Dash app
 app = dash.Dash(__name__)
-
+server = app.server
 
 # Custom CSS styling
 app.layout = html.Div([
@@ -497,3 +497,4 @@ def call_llm_model(patient_data):
 
 if __name__ == '__main__':
     app.run(debug=True,use_reloader = False)
+
