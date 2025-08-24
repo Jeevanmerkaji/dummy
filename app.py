@@ -435,9 +435,10 @@ def call_llm_model(patient_data):
     # response = your_model.generate(prompt)
     # return response
     
-    GROQ_API_KEY = os.environ["GROQ_API_KEY"] = "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"
-    os.environ["GROQ_API_KEY"] =  GROQ_API_KEY
-
+    # GROQ_API_KEY = os.environ["GROQ_API_KEY"] = "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"
+    # os.environ["GROQ_API_KEY"] =  GROQ_API_KEY
+    import os
+    GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
      # GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
     embeddings = download_hugging_face_embeddings()
@@ -497,4 +498,5 @@ def call_llm_model(patient_data):
 
 if __name__ == '__main__':
     app.run(debug=True,use_reloader = False)
+
 
