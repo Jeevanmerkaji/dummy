@@ -498,12 +498,18 @@ def clear_fields(n_clicks):
 #         return "⚠️ Error: The AI model failed to respond. Please check logs or try again later."
 
 
+# GROQ_API_KEY = os.environ["GROQ_API_KEY"] = "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"
+# os.environ["GROQ_API_KEY"] =  GROQ_API_KEY
+
+from groq import Groq
+import os
+
 def call_llm_model(patient_data):
     """
-    Uses your loaded vectorstore and Groq LLM to answer based on patient data + documents.
+    Uses your loaded vectorstore + Groq API to answer based on patient data and relevant documents.
     """
     try:
-        # Create a retriever from the loaded vectorstore
+        # Create a retriever from the preloaded vectorstore
         retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
         
         # Prepare patient input
@@ -528,37 +534,38 @@ def call_llm_model(patient_data):
         - Respiratory Rate: {patient_data['vitals']['respiratory_rate']}
         """
 
-        # Retrieve relevant documents
+        # Retrieve relevant documents from vectorstore
         docs = retriever.get_relevant_documents(input_text)
         context = "\n\n".join([doc.page_content for doc in docs])
 
-        # GROQ_API_KEY = os.environ["GROQ_API_KEY"] = "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"
-        # os.environ["GROQ_API_KEY"] =  GROQ_API_KEY
-
+        # Use Groq API
         GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+        client = Groq(api_key=GROQ_API_KEY)
 
-        # Initialize ChatGroq model
-        chat_model = ChatGroq(model_name="llama3-70b-8192")
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", system_prompt),
-            ("human", "{input}")
-        ])
+        # Prepare messages for the chat model
+        messages = [
+            {"role": "system", "content": "You are a medical diagnosis assistant. Use the patient data and reference documents to provide an informed answer."},
+            {"role": "user", "content": f"Patient Data:\n{input_text}\n\nRelevant Documents:\n{context}"}
+        ]
 
-        # Create RAG chain
-        question_answer_chain = create_stuff_documents_chain(chat_model, prompt)
-        rag_chain = create_retrieval_chain(retriever, question_answer_chain)
+        # Call Groq API
+        response = client.chat.completions.create(
+            model="llama3-70b-8192",
+            messages=messages
+        )
 
-        # Invoke RAG chain with patient input
-        response = rag_chain.invoke({"input": input_text})
-        return str(response["answer"])
+        # Extract response text
+        answer = response.choices[0].message.content
+        return answer
 
     except Exception as e:
         print("LLM Error:", e)
         return "⚠️ Error: The AI model failed to respond. Please check logs or try again later."
-        
+
 
 if __name__ == '__main__':
     app.run(debug=True,use_reloader = False)
+
 
 
 
