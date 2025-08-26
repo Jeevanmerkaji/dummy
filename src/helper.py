@@ -55,6 +55,14 @@ def download_hugging_face_embeddings():
     return embeddings
 
 
+#load the vector database
+def load_vectorstore():
+    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    vectorstore = FAISS.load_local("vectorstore_index", embeddings, allow_dangerous_deserialization=True)
+    return vectorstore
+
+
 # Store the data into the vector database
 def store_to_vectordb():
     texts_chunks =  split_text
+
