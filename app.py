@@ -532,8 +532,10 @@ def call_llm_model(patient_data):
         docs = retriever.get_relevant_documents(input_text)
         context = "\n\n".join([doc.page_content for doc in docs])
 
-        GROQ_API_KEY = os.environ["GROQ_API_KEY"] = "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"
-        os.environ["GROQ_API_KEY"] =  GROQ_API_KEY
+        # GROQ_API_KEY = os.environ["GROQ_API_KEY"] = "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"
+        # os.environ["GROQ_API_KEY"] =  GROQ_API_KEY
+
+        GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
         # Initialize ChatGroq model
         chat_model = ChatGroq(model_name="llama3-70b-8192")
@@ -557,6 +559,7 @@ def call_llm_model(patient_data):
 
 if __name__ == '__main__':
     app.run(debug=True,use_reloader = False)
+
 
 
 
