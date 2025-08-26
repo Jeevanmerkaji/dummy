@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime
 import pandas as pd
-from src.helper import loader_pdf_file, filter_to_minimal_docs, split_text, download_hugging_face_embeddings
+from src.helper import loader_pdf_file, filter_to_minimal_docs, split_text, download_hugging_face_embeddings,load_vectorstore
 from langchain_groq import ChatGroq
 from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
@@ -23,6 +23,8 @@ from langchain.prompts import PromptTemplate
 # Initialize the Dash app
 app = dash.Dash(__name__)
 server = app.server
+
+vectorstore = load_vectorstore()
 
 # Custom CSS styling
 app.layout = html.Div([
@@ -555,6 +557,7 @@ def call_llm_model(patient_data):
 
 if __name__ == '__main__':
     app.run(debug=True,use_reloader = False)
+
 
 
 
