@@ -407,90 +407,147 @@ def clear_fields(n_clicks):
     return dash.no_update
 
 # Function to integrate your LLM model
+# def call_llm_model(patient_data):
+#     """
+#     Replace this function with your actual LLM model integration
+    
+#     Args:
+#         patient_data (dict): Dictionary containing patient information
+        
+#     Returns:
+#         dict: Diagnosis results from your LLM model
+#     """
+#     # Example structure for your LLM integration:
+#     # 
+#     # prompt = f"""
+#     # You are a medical AI assistant. Based on the following patient information,
+#     # provide differential diagnoses with confidence scores and recommendations.
+#     # 
+#     # Patient Data:
+#     # {patient_data}
+#     # 
+#     # Please provide:
+#     # 1. Top 3 differential diagnoses with confidence scores
+#     # 2. Clinical reasoning
+#     # 3. Recommended next steps
+#     # """
+#     # 
+#     # response = your_model.generate(prompt)
+#     # return response
+    
+#     # GROQ_API_KEY = os.environ["GROQ_API_KEY"] = "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"
+#     # os.environ["GROQ_API_KEY"] =  GROQ_API_KEY
+#     import os
+#     GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+#      # GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+
+#     embeddings = download_hugging_face_embeddings()
+#     extracted_data =  loader_pdf_file(data='data/')
+#     filter_data = filter_to_minimal_docs(extracted_data)
+#     text_chunks =  split_text(filter_data)
+
+#     texts = [doc.page_content for doc in text_chunks]
+#     metadatas = [doc.metadata for doc in text_chunks]  
+
+
+#     chat_model = ChatGroq(
+#     model_name="llama3-70b-8192"
+#     )
+
+#     prompt =  ChatPromptTemplate.from_messages(
+#     [
+#         ("system" , system_prompt),
+#         ("human","{input}")
+#     ]
+#     )
+#     # Create FAISS vector store
+#     vectorstore = FAISS.from_texts(texts, embedding=embeddings, metadatas=metadatas)
+#     retriever  = vectorstore.as_retriever(search_type = "similarity", search_kwargs ={"k":3})
+#     question_answer_chain =  create_stuff_documents_chain(chat_model, prompt)
+#     rag_chain =  create_retrieval_chain(retriever, question_answer_chain)
+#     print("Here I am trying to do somestuff")
+#     try:
+#         input_text = f"""
+#             Patient Name: {patient_data['name']}
+#             Age: {patient_data['age']}
+#             Gender: {patient_data['gender']}
+
+#             Chief Complaint:
+#             {patient_data['chief_complaint']}
+
+#             Medical History:
+#             {patient_data['medical_history']}
+
+#             Current Symptoms:
+#             {patient_data['current_symptoms']}
+
+#             Vital Signs:
+#             - Blood Pressure: {patient_data['vitals']['blood_pressure']}
+#             - Heart Rate: {patient_data['vitals']['heart_rate']}
+#             - Temperature: {patient_data['vitals']['temperature']}
+#             - Respiratory Rate: {patient_data['vitals']['respiratory_rate']}
+#             """
+        
+#         response = rag_chain.invoke({"input": input_text})
+#         # print("Response : ", response['answer'])
+#         return str(response["answer"])
+#     except Exception as e:
+#         print("LLM Error:", e)
+#         return "⚠️ Error: The AI model failed to respond. Please check logs or try again later."
+
+
 def call_llm_model(patient_data):
     """
-    Replace this function with your actual LLM model integration
-    
-    Args:
-        patient_data (dict): Dictionary containing patient information
-        
-    Returns:
-        dict: Diagnosis results from your LLM model
+    Uses your loaded vectorstore and Groq LLM to answer based on patient data + documents.
     """
-    # Example structure for your LLM integration:
-    # 
-    # prompt = f"""
-    # You are a medical AI assistant. Based on the following patient information,
-    # provide differential diagnoses with confidence scores and recommendations.
-    # 
-    # Patient Data:
-    # {patient_data}
-    # 
-    # Please provide:
-    # 1. Top 3 differential diagnoses with confidence scores
-    # 2. Clinical reasoning
-    # 3. Recommended next steps
-    # """
-    # 
-    # response = your_model.generate(prompt)
-    # return response
-    
-    # GROQ_API_KEY = os.environ["GROQ_API_KEY"] = "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"
-    # os.environ["GROQ_API_KEY"] =  GROQ_API_KEY
-    import os
-    GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
-     # GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-
-    embeddings = download_hugging_face_embeddings()
-    extracted_data =  loader_pdf_file(data='data/')
-    filter_data = filter_to_minimal_docs(extracted_data)
-    text_chunks =  split_text(filter_data)
-
-    texts = [doc.page_content for doc in text_chunks]
-    metadatas = [doc.metadata for doc in text_chunks]  
-
-
-    chat_model = ChatGroq(
-    model_name="llama3-70b-8192"
-    )
-
-    prompt =  ChatPromptTemplate.from_messages(
-    [
-        ("system" , system_prompt),
-        ("human","{input}")
-    ]
-    )
-    # Create FAISS vector store
-    vectorstore = FAISS.from_texts(texts, embedding=embeddings, metadatas=metadatas)
-    retriever  = vectorstore.as_retriever(search_type = "similarity", search_kwargs ={"k":3})
-    question_answer_chain =  create_stuff_documents_chain(chat_model, prompt)
-    rag_chain =  create_retrieval_chain(retriever, question_answer_chain)
-    print("Here I am trying to do somestuff")
     try:
-        input_text = f"""
-            Patient Name: {patient_data['name']}
-            Age: {patient_data['age']}
-            Gender: {patient_data['gender']}
-
-            Chief Complaint:
-            {patient_data['chief_complaint']}
-
-            Medical History:
-            {patient_data['medical_history']}
-
-            Current Symptoms:
-            {patient_data['current_symptoms']}
-
-            Vital Signs:
-            - Blood Pressure: {patient_data['vitals']['blood_pressure']}
-            - Heart Rate: {patient_data['vitals']['heart_rate']}
-            - Temperature: {patient_data['vitals']['temperature']}
-            - Respiratory Rate: {patient_data['vitals']['respiratory_rate']}
-            """
+        # Create a retriever from the loaded vectorstore
+        retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
         
+        # Prepare patient input
+        input_text = f"""
+        Patient Name: {patient_data['name']}
+        Age: {patient_data['age']}
+        Gender: {patient_data['gender']}
+
+        Chief Complaint:
+        {patient_data['chief_complaint']}
+
+        Medical History:
+        {patient_data['medical_history']}
+
+        Current Symptoms:
+        {patient_data['current_symptoms']}
+
+        Vital Signs:
+        - Blood Pressure: {patient_data['vitals']['blood_pressure']}
+        - Heart Rate: {patient_data['vitals']['heart_rate']}
+        - Temperature: {patient_data['vitals']['temperature']}
+        - Respiratory Rate: {patient_data['vitals']['respiratory_rate']}
+        """
+
+        # Retrieve relevant documents
+        docs = retriever.get_relevant_documents(input_text)
+        context = "\n\n".join([doc.page_content for doc in docs])
+
+        GROQ_API_KEY = os.environ["GROQ_API_KEY"] = "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"
+        os.environ["GROQ_API_KEY"] =  GROQ_API_KEY
+
+        # Initialize ChatGroq model
+        chat_model = ChatGroq(model_name="llama3-70b-8192")
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", system_prompt),
+            ("human", "{input}")
+        ])
+
+        # Create RAG chain
+        question_answer_chain = create_stuff_documents_chain(chat_model, prompt)
+        rag_chain = create_retrieval_chain(retriever, question_answer_chain)
+
+        # Invoke RAG chain with patient input
         response = rag_chain.invoke({"input": input_text})
-        # print("Response : ", response['answer'])
         return str(response["answer"])
+
     except Exception as e:
         print("LLM Error:", e)
         return "⚠️ Error: The AI model failed to respond. Please check logs or try again later."
@@ -498,5 +555,6 @@ def call_llm_model(patient_data):
 
 if __name__ == '__main__':
     app.run(debug=True,use_reloader = False)
+
 
 
