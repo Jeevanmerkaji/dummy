@@ -537,11 +537,12 @@ def call_llm_model(patient_data):
         # Retrieve relevant documents from vectorstore
         docs = retriever.get_relevant_documents(input_text)
         context = "\n\n".join([doc.page_content for doc in docs])
-
+       
         # Use Groq API
-        GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
-        client = Groq(api_key=GROQ_API_KEY)
+        # GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+        # client = Groq(api_key=GROQ_API_KEY)
 
+        client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
         # Prepare messages for the chat model
         messages = [
             {"role": "system", "content": "You are a medical diagnosis assistant. Use the patient data and reference documents to provide an informed answer."},
@@ -565,6 +566,7 @@ def call_llm_model(patient_data):
 
 if __name__ == '__main__':
     app.run(debug=True,use_reloader = False)
+
 
 
 
