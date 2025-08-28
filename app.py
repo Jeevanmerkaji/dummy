@@ -17,6 +17,9 @@ from langchain.chains import ConversationChain
 from langchain.memory import ConversationBufferMemory
 from langchain_groq import ChatGroq
 from langchain.prompts import PromptTemplate
+import os
+import weaviate
+from weaviate.classes.init import Auth
 
 
 
@@ -501,28 +504,58 @@ def clear_fields(n_clicks):
 # GROQ_API_KEY = os.environ["GROQ_API_KEY"] = "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"
 # os.environ["GROQ_API_KEY"] =  GROQ_API_KEY
 
-from groq import Groq
-import os
+
+
+
+weaviate_url =  os.environ.get("WEAVIATE_URL")
+weaviate_api_key = os.environ.get("WEAVIATE_API_KEY")
+
+
+
+# Best practice: store your credentials in environment variables
+weaviate_url = os.environ["WEAVIATE_URL"]
+weaviate_api_key = os.environ["WEAVIATE_API_KEY"]
+
+# Connect to Weaviate Cloud
+client = weaviate.connect_to_weaviate_cloud(
+    cluster_url=weaviate_url,
+    auth_credentials=Auth.api_key(weaviate_api_key),
+)
+
+print(client.is_ready())
+
+def get_relevant_docs_from_weaviate(query, top_k=3):
+    response = (
+        client.query
+        .get("DemoCollection1", ["title", "description"])
+        .with_near_text({"concepts": [query]})
+        .with_limit(top_k)
+        .do()
+    )
+    docs = []
+    if "data" in response and "Get" in response["data"] and "DemoCollection1" in response["data"]["Get"]:
+        for item in response["data"]["Get"]["DemoCollection1"]:
+            docs.append(item["description"])
+    return docs
+
+
 
 def call_llm_model(patient_data):
     """
-    Generate AI diagnosis using Groq API only, no external documents.
+    Generate AI diagnosis using Groq API with optional PDF context from Weaviate.
     """
     try:
         GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
         if not GROQ_API_KEY:
             return "⚠️ GROQ_API_KEY not set in environment variables."
         
-        client = Groq(api_key=GROQ_API_KEY)
+        client_groq = Groq(api_key=GROQ_API_KEY)
         
-        # Prepare prompt
-        prompt = f"""
-        You are a medical AI assistant. Provide a diagnosis based on the following patient data:
-        
+        # Prepare patient text
+        patient_text = f"""
         Patient Name: {patient_data['name']}
         Age: {patient_data['age']}
         Gender: {patient_data['gender']}
-
         Chief Complaint: {patient_data['chief_complaint']}
         Medical History: {patient_data['medical_history']}
         Current Symptoms: {patient_data['current_symptoms']}
@@ -531,7 +564,22 @@ def call_llm_model(patient_data):
             - Heart Rate: {patient_data['vitals']['heart_rate']}
             - Temperature: {patient_data['vitals']['temperature']}
             - Respiratory Rate: {patient_data['vitals']['respiratory_rate']}
-        
+        """
+
+        # Retrieve relevant PDF context from Weaviate
+        context_docs = get_relevant_docs_from_weaviate(patient_text, top_k=3)
+        context_text = "\n\n".join(context_docs) if context_docs else "No additional context available."
+
+        # Full prompt with context
+        prompt = f"""
+        You are a medical AI assistant. Use the following reference documents to help provide a diagnosis:
+
+        Reference Documents:
+        {context_text}
+
+        Patient Data:
+        {patient_text}
+
         Please provide:
         1. Top 3 differential diagnoses with confidence scores
         2. Clinical reasoning
@@ -539,7 +587,7 @@ def call_llm_model(patient_data):
         """
 
         # Call Groq API
-        response = client.chat.completions.create(
+        response = client_groq.chat.completions.create(
             model="llama3-70b-8192",
             messages=[{"role": "user", "content": prompt}]
         )
@@ -555,6 +603,7 @@ def call_llm_model(patient_data):
 
 if __name__ == '__main__':
     app.run(debug=True,use_reloader = False)
+
 
 
 
