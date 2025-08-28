@@ -411,7 +411,7 @@ def clear_fields(n_clicks):
         return [None] * 10
     return dash.no_update
 
-Function to integrate your LLM model
+# Function to integrate your LLM model
 def call_llm_model(patient_data):
     """
     Replace this function with your actual LLM model integration
@@ -603,6 +603,7 @@ def call_llm_model(patient_data):
 
 if __name__ == '__main__':
     app.run(debug=True,use_reloader = False)
+
 
 
 
