@@ -411,94 +411,94 @@ def clear_fields(n_clicks):
         return [None] * 10
     return dash.no_update
 
-# Function to integrate your LLM model
-# def call_llm_model(patient_data):
-#     """
-#     Replace this function with your actual LLM model integration
+Function to integrate your LLM model
+def call_llm_model(patient_data):
+    """
+    Replace this function with your actual LLM model integration
     
-#     Args:
-#         patient_data (dict): Dictionary containing patient information
+    Args:
+        patient_data (dict): Dictionary containing patient information
         
-#     Returns:
-#         dict: Diagnosis results from your LLM model
-#     """
-#     # Example structure for your LLM integration:
-#     # 
-#     # prompt = f"""
-#     # You are a medical AI assistant. Based on the following patient information,
-#     # provide differential diagnoses with confidence scores and recommendations.
-#     # 
-#     # Patient Data:
-#     # {patient_data}
-#     # 
-#     # Please provide:
-#     # 1. Top 3 differential diagnoses with confidence scores
-#     # 2. Clinical reasoning
-#     # 3. Recommended next steps
-#     # """
-#     # 
-#     # response = your_model.generate(prompt)
-#     # return response
+    Returns:
+        dict: Diagnosis results from your LLM model
+    """
+    # Example structure for your LLM integration:
+    # 
+    # prompt = f"""
+    # You are a medical AI assistant. Based on the following patient information,
+    # provide differential diagnoses with confidence scores and recommendations.
+    # 
+    # Patient Data:
+    # {patient_data}
+    # 
+    # Please provide:
+    # 1. Top 3 differential diagnoses with confidence scores
+    # 2. Clinical reasoning
+    # 3. Recommended next steps
+    # """
+    # 
+    # response = your_model.generate(prompt)
+    # return response
     
-#     # GROQ_API_KEY = os.environ["GROQ_API_KEY"] = "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"
-#     # os.environ["GROQ_API_KEY"] =  GROQ_API_KEY
-#     import os
-#     GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
-#      # GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+    # GROQ_API_KEY = os.environ["GROQ_API_KEY"] = "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"
+    # os.environ["GROQ_API_KEY"] =  GROQ_API_KEY
+    import os
+    GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+     # GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
-#     embeddings = download_hugging_face_embeddings()
-#     extracted_data =  loader_pdf_file(data='data/')
-#     filter_data = filter_to_minimal_docs(extracted_data)
-#     text_chunks =  split_text(filter_data)
+    embeddings = download_hugging_face_embeddings()
+    extracted_data =  loader_pdf_file(data='data/')
+    filter_data = filter_to_minimal_docs(extracted_data)
+    text_chunks =  split_text(filter_data)
 
-#     texts = [doc.page_content for doc in text_chunks]
-#     metadatas = [doc.metadata for doc in text_chunks]  
+    texts = [doc.page_content for doc in text_chunks]
+    metadatas = [doc.metadata for doc in text_chunks]  
 
 
-#     chat_model = ChatGroq(
-#     model_name="llama3-70b-8192"
-#     )
+    chat_model = ChatGroq(
+    model_name="llama3-70b-8192"
+    )
 
-#     prompt =  ChatPromptTemplate.from_messages(
-#     [
-#         ("system" , system_prompt),
-#         ("human","{input}")
-#     ]
-#     )
-#     # Create FAISS vector store
-#     vectorstore = FAISS.from_texts(texts, embedding=embeddings, metadatas=metadatas)
-#     retriever  = vectorstore.as_retriever(search_type = "similarity", search_kwargs ={"k":3})
-#     question_answer_chain =  create_stuff_documents_chain(chat_model, prompt)
-#     rag_chain =  create_retrieval_chain(retriever, question_answer_chain)
-#     print("Here I am trying to do somestuff")
-#     try:
-#         input_text = f"""
-#             Patient Name: {patient_data['name']}
-#             Age: {patient_data['age']}
-#             Gender: {patient_data['gender']}
+    prompt =  ChatPromptTemplate.from_messages(
+    [
+        ("system" , system_prompt),
+        ("human","{input}")
+    ]
+    )
+    # Create FAISS vector store
+    vectorstore = FAISS.from_texts(texts, embedding=embeddings, metadatas=metadatas)
+    retriever  = vectorstore.as_retriever(search_type = "similarity", search_kwargs ={"k":3})
+    question_answer_chain =  create_stuff_documents_chain(chat_model, prompt)
+    rag_chain =  create_retrieval_chain(retriever, question_answer_chain)
+    print("Here I am trying to do somestuff")
+    try:
+        input_text = f"""
+            Patient Name: {patient_data['name']}
+            Age: {patient_data['age']}
+            Gender: {patient_data['gender']}
 
-#             Chief Complaint:
-#             {patient_data['chief_complaint']}
+            Chief Complaint:
+            {patient_data['chief_complaint']}
 
-#             Medical History:
-#             {patient_data['medical_history']}
+            Medical History:
+            {patient_data['medical_history']}
 
-#             Current Symptoms:
-#             {patient_data['current_symptoms']}
+            Current Symptoms:
+            {patient_data['current_symptoms']}
 
-#             Vital Signs:
-#             - Blood Pressure: {patient_data['vitals']['blood_pressure']}
-#             - Heart Rate: {patient_data['vitals']['heart_rate']}
-#             - Temperature: {patient_data['vitals']['temperature']}
-#             - Respiratory Rate: {patient_data['vitals']['respiratory_rate']}
-#             """
+            Vital Signs:
+            - Blood Pressure: {patient_data['vitals']['blood_pressure']}
+            - Heart Rate: {patient_data['vitals']['heart_rate']}
+            - Temperature: {patient_data['vitals']['temperature']}
+            - Respiratory Rate: {patient_data['vitals']['respiratory_rate']}
+            """
         
-#         response = rag_chain.invoke({"input": input_text})
-#         # print("Response : ", response['answer'])
-#         return str(response["answer"])
-#     except Exception as e:
-#         print("LLM Error:", e)
-#         return "⚠️ Error: The AI model failed to respond. Please check logs or try again later."
+        response = rag_chain.invoke({"input": input_text})
+        # print("Response : ", response['answer'])
+        return str(response["answer"])
+    except Exception as e:
+        print("LLM Error:", e)
+        return "⚠️ Error: The AI model failed to respond. Please check logs or try again later."
 
 
 # GROQ_API_KEY = os.environ["GROQ_API_KEY"] = "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"
@@ -507,102 +507,103 @@ def clear_fields(n_clicks):
 
 
 
-weaviate_url =  os.environ.get("WEAVIATE_URL")
-weaviate_api_key = os.environ.get("WEAVIATE_API_KEY")
+# weaviate_url =  os.environ.get("WEAVIATE_URL")
+# weaviate_api_key = os.environ.get("WEAVIATE_API_KEY")
 
 
 
-# Best practice: store your credentials in environment variables
-weaviate_url = os.environ["WEAVIATE_URL"]
-weaviate_api_key = os.environ["WEAVIATE_API_KEY"]
+# # Best practice: store your credentials in environment variables
+# weaviate_url = os.environ["WEAVIATE_URL"]
+# weaviate_api_key = os.environ["WEAVIATE_API_KEY"]
 
-# Connect to Weaviate Cloud
-client = weaviate.connect_to_weaviate_cloud(
-    cluster_url=weaviate_url,
-    auth_credentials=Auth.api_key(weaviate_api_key),
-)
+# # Connect to Weaviate Cloud
+# client = weaviate.connect_to_weaviate_cloud(
+#     cluster_url=weaviate_url,
+#     auth_credentials=Auth.api_key(weaviate_api_key),
+# )
 
-print(client.is_ready())
+# print(client.is_ready())
 
-def get_relevant_docs_from_weaviate(query, top_k=3):
-    response = (
-        client.query
-        .get("DemoCollection1", ["title", "description"])
-        .with_near_text({"concepts": [query]})
-        .with_limit(top_k)
-        .do()
-    )
-    docs = []
-    if "data" in response and "Get" in response["data"] and "DemoCollection1" in response["data"]["Get"]:
-        for item in response["data"]["Get"]["DemoCollection1"]:
-            docs.append(item["description"])
-    return docs
+# def get_relevant_docs_from_weaviate(query, top_k=3):
+#     response = (
+#         client.query
+#         .get("DemoCollection1", ["title", "description"])
+#         .with_near_text({"concepts": [query]})
+#         .with_limit(top_k)
+#         .do()
+#     )
+#     docs = []
+#     if "data" in response and "Get" in response["data"] and "DemoCollection1" in response["data"]["Get"]:
+#         for item in response["data"]["Get"]["DemoCollection1"]:
+#             docs.append(item["description"])
+#     return docs
 
 
 
-def call_llm_model(patient_data):
-    """
-    Generate AI diagnosis using Groq API with optional PDF context from Weaviate.
-    """
-    try:
-        GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
-        if not GROQ_API_KEY:
-            return "⚠️ GROQ_API_KEY not set in environment variables."
+# def call_llm_model(patient_data):
+#     """
+#     Generate AI diagnosis using Groq API with optional PDF context from Weaviate.
+#     """
+#     try:
+#         GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+#         if not GROQ_API_KEY:
+#             return "⚠️ GROQ_API_KEY not set in environment variables."
         
-        client_groq = Groq(api_key=GROQ_API_KEY)
+#         client_groq = Groq(api_key=GROQ_API_KEY)
         
-        # Prepare patient text
-        patient_text = f"""
-        Patient Name: {patient_data['name']}
-        Age: {patient_data['age']}
-        Gender: {patient_data['gender']}
-        Chief Complaint: {patient_data['chief_complaint']}
-        Medical History: {patient_data['medical_history']}
-        Current Symptoms: {patient_data['current_symptoms']}
-        Vital Signs:
-            - Blood Pressure: {patient_data['vitals']['blood_pressure']}
-            - Heart Rate: {patient_data['vitals']['heart_rate']}
-            - Temperature: {patient_data['vitals']['temperature']}
-            - Respiratory Rate: {patient_data['vitals']['respiratory_rate']}
-        """
+#         # Prepare patient text
+#         patient_text = f"""
+#         Patient Name: {patient_data['name']}
+#         Age: {patient_data['age']}
+#         Gender: {patient_data['gender']}
+#         Chief Complaint: {patient_data['chief_complaint']}
+#         Medical History: {patient_data['medical_history']}
+#         Current Symptoms: {patient_data['current_symptoms']}
+#         Vital Signs:
+#             - Blood Pressure: {patient_data['vitals']['blood_pressure']}
+#             - Heart Rate: {patient_data['vitals']['heart_rate']}
+#             - Temperature: {patient_data['vitals']['temperature']}
+#             - Respiratory Rate: {patient_data['vitals']['respiratory_rate']}
+#         """
 
-        # Retrieve relevant PDF context from Weaviate
-        context_docs = get_relevant_docs_from_weaviate(patient_text, top_k=3)
-        context_text = "\n\n".join(context_docs) if context_docs else "No additional context available."
+#         # Retrieve relevant PDF context from Weaviate
+#         context_docs = get_relevant_docs_from_weaviate(patient_text, top_k=3)
+#         context_text = "\n\n".join(context_docs) if context_docs else "No additional context available."
 
-        # Full prompt with context
-        prompt = f"""
-        You are a medical AI assistant. Use the following reference documents to help provide a diagnosis:
+#         # Full prompt with context
+#         prompt = f"""
+#         You are a medical AI assistant. Use the following reference documents to help provide a diagnosis:
 
-        Reference Documents:
-        {context_text}
+#         Reference Documents:
+#         {context_text}
 
-        Patient Data:
-        {patient_text}
+#         Patient Data:
+#         {patient_text}
 
-        Please provide:
-        1. Top 3 differential diagnoses with confidence scores
-        2. Clinical reasoning
-        3. Recommended next steps
-        """
+#         Please provide:
+#         1. Top 3 differential diagnoses with confidence scores
+#         2. Clinical reasoning
+#         3. Recommended next steps
+#         """
 
-        # Call Groq API
-        response = client_groq.chat.completions.create(
-            model="llama3-70b-8192",
-            messages=[{"role": "user", "content": prompt}]
-        )
+#         # Call Groq API
+#         response = client_groq.chat.completions.create(
+#             model="llama3-70b-8192",
+#             messages=[{"role": "user", "content": prompt}]
+#         )
 
-        answer = response.choices[0].message.content
-        return answer
+#         answer = response.choices[0].message.content
+#         return answer
 
-    except Exception as e:
-        print("LLM Error:", e)
-        return "⚠️ Error: The AI model failed to respond."
+#     except Exception as e:
+#         print("LLM Error:", e)
+#         return "⚠️ Error: The AI model failed to respond."
 
 
 
 if __name__ == '__main__':
     app.run(debug=True,use_reloader = False)
+
 
 
 
