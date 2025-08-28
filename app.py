@@ -506,66 +506,56 @@ import os
 
 def call_llm_model(patient_data):
     """
-    Uses your loaded vectorstore + Groq API to answer based on patient data and relevant documents.
+    Generate AI diagnosis using Groq API only, no external documents.
     """
     try:
-        # Create a retriever from the preloaded vectorstore
-        retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
+        GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+        if not GROQ_API_KEY:
+            return "⚠️ GROQ_API_KEY not set in environment variables."
         
-        # Prepare patient input
-        input_text = f"""
+        client = Groq(api_key=GROQ_API_KEY)
+        
+        # Prepare prompt
+        prompt = f"""
+        You are a medical AI assistant. Provide a diagnosis based on the following patient data:
+        
         Patient Name: {patient_data['name']}
         Age: {patient_data['age']}
         Gender: {patient_data['gender']}
 
-        Chief Complaint:
-        {patient_data['chief_complaint']}
-
-        Medical History:
-        {patient_data['medical_history']}
-
-        Current Symptoms:
-        {patient_data['current_symptoms']}
-
+        Chief Complaint: {patient_data['chief_complaint']}
+        Medical History: {patient_data['medical_history']}
+        Current Symptoms: {patient_data['current_symptoms']}
         Vital Signs:
-        - Blood Pressure: {patient_data['vitals']['blood_pressure']}
-        - Heart Rate: {patient_data['vitals']['heart_rate']}
-        - Temperature: {patient_data['vitals']['temperature']}
-        - Respiratory Rate: {patient_data['vitals']['respiratory_rate']}
+            - Blood Pressure: {patient_data['vitals']['blood_pressure']}
+            - Heart Rate: {patient_data['vitals']['heart_rate']}
+            - Temperature: {patient_data['vitals']['temperature']}
+            - Respiratory Rate: {patient_data['vitals']['respiratory_rate']}
+        
+        Please provide:
+        1. Top 3 differential diagnoses with confidence scores
+        2. Clinical reasoning
+        3. Recommended next steps
         """
-
-        # Retrieve relevant documents from vectorstore
-        docs = retriever.get_relevant_documents(input_text)
-        context = "\n\n".join([doc.page_content for doc in docs])
-       
-        # Use Groq API
-        # GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
-        # client = Groq(api_key=GROQ_API_KEY)
-
-        client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
-        # Prepare messages for the chat model
-        messages = [
-            {"role": "system", "content": "You are a medical diagnosis assistant. Use the patient data and reference documents to provide an informed answer."},
-            {"role": "user", "content": f"Patient Data:\n{input_text}\n\nRelevant Documents:\n{context}"}
-        ]
 
         # Call Groq API
         response = client.chat.completions.create(
             model="llama3-70b-8192",
-            messages=messages
+            messages=[{"role": "user", "content": prompt}]
         )
 
-        # Extract response text
         answer = response.choices[0].message.content
         return answer
 
     except Exception as e:
         print("LLM Error:", e)
-        return "⚠️ Error: The AI model failed to respond. Please check logs or try again later."
+        return "⚠️ Error: The AI model failed to respond."
+
 
 
 if __name__ == '__main__':
     app.run(debug=True,use_reloader = False)
+
 
 
 
